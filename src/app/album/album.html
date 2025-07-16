@@ -1,0 +1,21 @@
+@if (isLoading()) {
+  <p>Loading...</p>
+}
+@else {
+@if (album(); as album) {
+  <div>
+    <p>Photos</p>
+    <a [href]="album.downloadUrl" target="_blank">Download Album</a>
+    @for (photo of album.photos; track $index) {
+      <div class="photo">
+        <a [href]="photo.downloadUrl" target="_blank">Download</a>
+
+        <img [src]="photo.thumbnailUrl" />
+      </div>
+    }
+  </div>
+}
+@else {
+  <p>No photos available.</p>
+}
+}
