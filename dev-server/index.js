@@ -7,6 +7,8 @@ const port = 3141;
 app.use(cors());
 
 app.get('/api/shoots/:shootId/albums/:albumId', (req, res) => {
+  res.send(JSON.stringify(null));
+  return;
   const testData = {
     id: req.params.albumId,
     shootId: req.params.shootId,
