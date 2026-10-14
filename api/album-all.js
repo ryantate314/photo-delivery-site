@@ -65,8 +65,16 @@ async function getAlbums(shoot) {
   }));
 }
 
+function decodePathParam(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 export const handler = async (event, context) => {
-  const { shootId  } = event.pathParameters;
+  const shootId = decodePathParam(event.pathParameters.shootId);
   console.debug(`Getting photos for ${shootId}`);
   
   // try {

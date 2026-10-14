@@ -62,7 +62,8 @@ async function getAllPhotos(shoot) {
 
 async function getAlbum(shoot, token) {
   const shootTest = /^[a-zA-Z0-9]{1,20}$/;
-  const tokenTest = /^[A-Z]{3}[0-9]{2}|[a-z]+(\.[a-z\-]+)?$/
+  // Slugs (e.g. ABC12) or free-form names with spaces; no slashes or dot-only segments.
+  const tokenTest = /^(?!\.+$)[a-zA-Z0-9 ._\-]{1,50}$/;
 
   if (!shootTest.test(shoot) || !tokenTest.test(token))
     throw "Invalid token format.";
@@ -110,8 +111,17 @@ async function getAlbum(shoot, token) {
   };
 }
 
+function decodePathParam(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 export const handler = async (event, context) => {
-  const { shootId, albumId } = event.pathParameters;
+  const shootId = decodePathParam(event.pathParameters.shootId);
+  const albumId = decodePathParam(event.pathParameters.albumId);
   console.debug(`Getting photos for ${shootId}/${albumId}`);
   
   try {
