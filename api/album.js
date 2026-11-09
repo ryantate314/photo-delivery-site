@@ -13,6 +13,15 @@ function getPhotoUrl(key) {
   return `${sitePrefix}/${key}`;
 }
 
+// Pair full-res and thumbnail keys ignoring extension and case, since thumbnails may be
+// re-encoded (e.g. .png -> .jpg) and cameras write upper-case extensions (.JPG).
+function thumbnailMatchKey(key) {
+  return key
+    .replace("thumbnails/", "full-res/")
+    .replace(/\.[^./]+$/, "")
+    .toLowerCase();
+}
+
 async function getPhotos(shoot, token) {
 
 }
@@ -41,7 +50,7 @@ async function getAllPhotos(shoot) {
 
   const photos = fullResPhotos.map(x => {
     const thumbnail = thumbnails.find(
-      y => y.Key.replace("thumbnails/", "full-res/") == x.Key
+      y => thumbnailMatchKey(y.Key) === thumbnailMatchKey(x.Key)
     );
     return {
       fullRes: x.Key,
@@ -54,7 +63,7 @@ async function getAllPhotos(shoot) {
     shoot: shoot,
     downloadUrl: `${getPhotoUrl(key)}${shoot}.zip`,
     photos: photos.map(x => ({
-      thumbnailUrl: getPhotoUrl(x.thumbnail),
+      thumbnailUrl: getPhotoUrl(x.thumbnail ?? x.fullRes),
       downloadUrl: getPhotoUrl(x.fullRes)
     }))
   };
@@ -92,7 +101,7 @@ async function getAlbum(shoot, token) {
 
   const photos = fullResPhotos.map(x => {
     const thumbnail = thumbnails.find(
-      y => y.Key.replace("thumbnails/", "full-res/") == x.Key
+      y => thumbnailMatchKey(y.Key) === thumbnailMatchKey(x.Key)
     );
     return {
       fullRes: x.Key,
@@ -105,7 +114,7 @@ async function getAlbum(shoot, token) {
     shoot: shoot,
     downloadUrl: `${getPhotoUrl(key)}${shoot}.zip`,
     photos: photos.map(x => ({
-      thumbnailUrl: getPhotoUrl(x.thumbnail),
+      thumbnailUrl: getPhotoUrl(x.thumbnail ?? x.fullRes),
       downloadUrl: getPhotoUrl(x.fullRes)
     }))
   };
@@ -145,6 +154,8 @@ function ok(album) {
     "statusCode": 200,
     "headers": {
       "Content-Type": "application/json",
+      // Browsers cache for a minute; shared caches (CloudFront) for five.
+      "Cache-Control": "public, max-age=60, s-maxage=300",
     },
     "body": JSON.stringify(album),
   }
@@ -154,6 +165,10 @@ function ok(album) {
 function notFound() {
   var response = {
     "statusCode": 404,
+    "headers": {
+      // Short, so clients pick up an album soon after it's uploaded.
+      "Cache-Control": "public, max-age=10",
+    },
   }
   return response;
 }

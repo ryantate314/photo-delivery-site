@@ -1,3 +1,3 @@
 export const environment = {
-  apiUrl: "http://localhost:3141/api",
+  apiUrl: "https://photos.ryantate314.net/api",
 };
