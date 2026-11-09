@@ -1,0 +1,27 @@
+# Terraform (state lives in the shared S3 backend; never commit it)
+infra/.terraform/
+infra/.terraform-validate/
+*.tfplan
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+!*.tfvars.example
+
+# Build output
+dist/
+api/dist/
+
+# Node
+node_modules/
+
+# Local AWS / env material
+.env
+.env.*
+.aws-sam/
+
+# Raw inventory or exports that may contain account IDs
+inventory/raw/
+
+# Terraform build artifacts (Lambda zips)
+infra/.build/
